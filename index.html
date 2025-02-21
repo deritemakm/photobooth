@@ -37,7 +37,6 @@
             gap: 20px;
             max-width: 100%;
             padding: 10px;
-            margin-left: -40px;
         }
 
         .video-container {
@@ -78,7 +77,6 @@
 
         .btn-container {
             margin-top: 20px;
-            margin-left: -40px;
         }
 
         button {
@@ -153,29 +151,21 @@
     }
 }
 
-@media (max-width: 2160px) and (orientation: landscape) {
-    .main-container {
-        margin-left: -80px;
+ @media (max-width: 1024px) and (max-height: 768px) {
+        .main-container{
+            margin-left: -100px;
+            
+        }
+
+        img{
+            width: 180px;
+            height: auto;
+        }
+
+        #grid{
+            right: -200px;
+        }
     }
-
-    img {
-        width: 150px;
-        height: auto;
-    }
-
-    
-    #grid {
-        right: -180px;
-        
-    }
-
-    .btn-container {
-        margin-left: -150px;
-    }
-
-
-}
-
 @media (max-width: 480px) {
     .main-container {
         flex-direction: row;
@@ -206,6 +196,8 @@
     img {
         width: 70px;
     }
+
+   
 }
         
     </style>
