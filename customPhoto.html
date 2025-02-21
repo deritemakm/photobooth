@@ -1,0 +1,238 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customize Photos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Parkinsans:wght@300..800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-image: url("image/background-heart.jpg");
+            background-size: cover;
+            margin: 0;
+        }
+
+        h1 {
+            font-family: "Parkinsans", serif;
+            font-optical-sizing: auto;
+            color: rgb(0, 0, 0);
+        }
+
+        .button-container {
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .grid-container {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            padding: 20px;
+            padding-bottom: 100px;
+            max-width: 70%;
+            align-items: center;
+            background-color: pink;
+            transition: background-color 0.3s ease;
+            background-size: contain;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .grid-item {
+            width: 200px;
+            height: auto;
+            cursor: move;
+        }
+
+
+        .timestamp {
+            position: absolute;
+            bottom: 10px;
+            font-family: "Parkinsans", serif;
+            font-size: 10px;
+            color: black;
+            text-align: right;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            font-family: "Parkinsans", serif;
+            border: none;
+            border-radius: 55px;
+            background-color: rgb(247, 247, 247);
+            color: rgb(0, 0, 0);
+            cursor: pointer;
+            margin: 5px;
+            transition: background-color 0.3s, transform 0.2s; 
+        }
+
+        button:hover{
+            background-color: rgba(249, 149, 208, 0.818); 
+            transform: scale(1.05); 
+            color: rgb(250, 241, 241);
+        }
+
+        .color-picker-container {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: "Parkinsans", serif;
+           
+        }
+
+        #colorPicker{
+            border-radius: 10px;
+            border: none;
+            background-color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>Customize Your Photos</h1>
+    
+    <div class="button-container">
+        <button id="ribbonButton">Ribbon Background</button>
+        <button id="heartButton">Cat Background</button>
+        <button id="rabbitButton">Rabbit Background</button>
+        <button id="vintageButton">Vintage Background</button>
+        <button id="ghibliButton">Ghibli Background</button>
+        <button id="anyColorBtn">Any Colors</button>
+    </div>
+
+    <div class="grid-container" id="gridContainer">
+        <div class="timestamp" id="timestamp"></div>
+    </div>
+
+    <div class="button-container">
+        <button id="newPhotosButton">Take New Photos</button>
+        <button id="downloadButton">Download Photo</button>
+        
+        <div class="color-picker-container">
+            <label for="colorPicker">Pick a Color:</label>
+            <input type="color" id="colorPicker">
+        </div>
+    </div>
+    <script>
+        const gridContainer = document.getElementById('gridContainer');
+        const newPhotosButton = document.getElementById('newPhotosButton');
+        const downloadButton = document.getElementById('downloadButton');
+        const colorPicker = document.getElementById('colorPicker');
+        const ribbonButton = document.getElementById('ribbonButton');
+        const heartButton = document.getElementById('heartButton');
+        const rabbitButton = document.getElementById('rabbitButton');
+        const vintageButton = document.getElementById('vintageButton');
+        const ghibliButton = document.getElementById('ghibliButton');
+        const gridButton = document.getElementById('anyColorBtn');
+        const timestamp = document.getElementById('timestamp');
+    
+        function updateTimestamp() {
+            if (!localStorage.getItem('savedTimestamp')) {
+                const now = new Date();
+                const formattedDate = now.toLocaleString();
+                localStorage.setItem('savedTimestamp', formattedDate);
+            }
+            timestamp.textContent = `Captured on: ${localStorage.getItem('savedTimestamp')}`;
+        }
+    
+        function loadImages() {
+            const savedImages = JSON.parse(localStorage.getItem('capturedImages'));
+            gridContainer.innerHTML = ""; // Clear grid but keep timestamp
+    
+            if (savedImages) {
+                savedImages.forEach((src, index) => {
+                    const img = document.createElement('img');
+                    img.src = src;
+                    img.classList.add('grid-item');
+                    img.draggable = true;
+                    img.setAttribute("data-index", index);
+                    gridContainer.appendChild(img);
+                });
+            }
+    
+            // Ensure timestamp is added back
+            gridContainer.appendChild(timestamp);
+        }
+    
+        newPhotosButton.addEventListener('click', function () {
+            localStorage.removeItem('savedTimestamp'); // Reset timestamp when taking new photos
+            window.location.href = 'index.html';
+        });
+    
+        downloadButton.addEventListener('click', function () {
+            html2canvas(gridContainer).then(canvas => {
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL('image/png');
+                link.download = 'photo.png';
+                link.click();
+            });
+        });
+    
+        function loadBackgroundSettings() {
+            const savedColor = localStorage.getItem('gridBackgroundColor');
+            if (savedColor) {
+                gridContainer.style.backgroundColor = savedColor;
+                colorPicker.value = savedColor;
+            }
+            const savedBackgroundImage = localStorage.getItem('gridBackgroundImage');
+            if (savedBackgroundImage) {
+                gridContainer.style.backgroundImage = `url('${savedBackgroundImage}')`;
+            }
+        }
+    
+        colorPicker.addEventListener('input', function () {
+            gridContainer.style.backgroundColor = colorPicker.value;
+            localStorage.setItem('gridBackgroundColor', colorPicker.value);
+        });
+    
+        function setBackgroundImage(imagePath) {
+            gridContainer.style.backgroundImage = `url('${imagePath}')`;
+            localStorage.setItem('gridBackgroundImage', imagePath);
+        }
+    
+        ribbonButton.addEventListener('click', function () {
+            setBackgroundImage('image/ribbon-bg.png');
+        });
+    
+        heartButton.addEventListener('click', function () {
+            setBackgroundImage('image/kitten-bg.jpg');
+        });
+    
+        rabbitButton.addEventListener('click', function () {
+            setBackgroundImage('image/rabbit-bg.jpg');
+        });
+    
+        vintageButton.addEventListener('click', function () {
+            setBackgroundImage('image/vintage-bg.jpg');
+        });
+
+        ghibliButton.addEventListener('click', function () {
+            setBackgroundImage('image/ghibli-bg.jpg');
+        });
+    
+        anyColorBtn.addEventListener('click', function () {
+            setBackgroundImage('image/flowers-bg.png');
+        });
+    
+        loadImages();
+        loadBackgroundSettings();
+        updateTimestamp();
+    </script>
+    
+</body>
+</html>
