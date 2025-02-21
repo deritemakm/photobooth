@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photobooth</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Parkinsans:wght@300..800&display=swap" rel="stylesheet">
+        <style>
+            body {
+            background-image: url("image/background-heart.jpg");
+            background-size: cover; 
+            background-position: center; 
+            background-repeat: no-repeat; 
+            height: 100vh; 
+            margin: 0; 
+            text-align: center;
+        }
+
+        .header-title {
+            text-align: center;
+            font-family: "Parkinsans", serif;
+            font-optical-sizing: auto;
+        }
+
+        .main-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 20px;
+            flex-wrap: wrap;
+            max-width: 100%;
+            padding: 10px;
+        }
+        .video-container {
+            position: relative;
+        }
+
+        #grid {
+            display: flex;
+            flex-direction: column; 
+            align-items: center;
+            gap: 10px;
+            position: absolute;
+            right: -180px;
+            top: 0;
+        }
+
+        canvas {
+            display: none;
+        }
+
+        img {
+            width: 150px;
+            height: auto;
+            border: 2px solid rgb(248, 205, 225);
+            border-radius: 10px;
+        }
+
+        #video {
+            border: 2px solid  rgb(248, 205, 225);
+            border-radius: 30px;
+            transform: scaleX(-1);
+        }
+
+        .btn-container {
+            margin-top: 20px;
+        }
+
+        button {
+            margin: 10px;
+            border-radius: 40px;
+            color: rgb(0, 0, 0);
+            background-color: rgb(231, 231, 231);
+            border: none;
+            font-size: 18px;
+            font-family: "Parkinsans", serif;
+            font-optical-sizing: auto;
+            padding: 15px 25px;
+            cursor: pointer;
+            margin: 5px;
+            transition: background-color 0.3s, transform 0.2s; 
+        }
+
+        button:hover{
+            background-color: rgba(249, 149, 208, 0.818); 
+            transform: scale(1.05); 
+            color: rgb(250, 241, 241);
+        }
+
+        .timer {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 50px;
+            font-weight: bold;
+            color: rgb(243, 189, 198);
+            display: none;
+        }
+
+      
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .main-container {
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+
+    .video-container {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #video {
+        width: 90%;
+        max-width: 400px; /* Limits stretching on large phones */
+    }
+
+    #grid {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        width: 90%;
+        margin-top: 15px;
+        position: static;
+    }
+
+    img {
+        width: 90px;
+        height: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-container {
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+
+    .video-container {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #video {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    #grid {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        width: 100%;
+        margin-top: 15px;
+    }
+
+    img {
+        width: 70px;
+    }
+}
+        
+    </style>
+</head>
+<body>
+    <div class="header-title">
+        <h1>Photobooth</h1>
+    </div>
+
+    <div class="main-container">
+        <div class="video-container">
+            <video id="video" width="640" height="480" autoplay></video>
+            <div id="grid"></div>
+            <div class="timer" id="timer">5</div>
+        </div>
+    </div>
+
+    <div class="btn-container">
+        <button id="snap">Start Capture</button>
+        <button id="retake" disabled>Retake</button>
+        <button id="customize" disabled>Customize Your Photo</button>
+    </div>
+
+    <canvas id="canvas" width="640" height="480"></canvas>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+        const grid = document.getElementById('grid');
+        const snapButton = document.getElementById('snap');
+        const retakeButton = document.getElementById('retake');
+        const customizeButton = document.getElementById('customize');
+        const timer = document.getElementById('timer');
+
+        let shots = 0;
+        let capturedImages = [];
+
+        // Access webcam
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function (stream) {
+                    video.srcObject = stream;
+                    video.play();
+                })
+                .catch(function (error) {
+                    console.error("Error accessing webcam: ", error);
+                });
+        }
+
+
+        
+        function startTimer(countdown, callback) {
+            timer.style.display = "block";
+            let counter = countdown;
+
+            function updateTimer() {
+                if (counter > 0) {
+                    timer.textContent = counter;
+                    counter--;
+                    setTimeout(updateTimer, 1000);
+                } else {
+                    timer.style.display = "none";
+                    callback();
+                }
+            }
+            updateTimer();
+        }
+
+        function captureImage() {
+            if (shots < 4) {
+                context.save(); 
+                context.translate(canvas.width, 0); // Move context to the right
+                context.scale(-1, 1); // Flip horizontally
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                context.restore(); // Restore context to normal
+        
+                const img = document.createElement('img');
+                const imageData = canvas.toDataURL("image/png");
+        
+                img.src = imageData;
+                grid.appendChild(img);
+                capturedImages.push(imageData);
+                shots++;
+        
+                if (shots < 4) {
+                    setTimeout(() => startTimer(5, captureImage), 500);
+                } else {
+                    snapButton.disabled = true;
+                    retakeButton.disabled = false;
+                    customizeButton.disabled = false;
+                }
+            }
+        }
+        
+
+        snapButton.addEventListener('click', function () {
+            shots = 0;
+            capturedImages = [];
+            grid.innerHTML = "";
+            snapButton.disabled = true;
+            retakeButton.disabled = true;
+            customizeButton.disabled = true;
+            startTimer(5, captureImage);
+        });
+
+        retakeButton.addEventListener('click', function () {
+            shots = 0;
+            capturedImages = [];
+            grid.innerHTML = "";
+            snapButton.disabled = false;
+            retakeButton.disabled = true;
+            customizeButton.disabled = true;
+        });
+
+        customizeButton.addEventListener('click', function () {
+            if (capturedImages.length > 0) {
+                localStorage.setItem('capturedImages', JSON.stringify(capturedImages));
+                window.location.href = 'customPhoto.html';
+            }
+        });
+
+
+       
+
+
+    </script>
+</body>
+</html>
