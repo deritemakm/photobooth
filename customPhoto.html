@@ -157,7 +157,6 @@
             timestamp.textContent = `${localStorage.getItem('savedTimestamp')}`;
         }
         
-    
         function loadImages() {
             const savedImages = JSON.parse(localStorage.getItem('capturedImages'));
             gridContainer.innerHTML = ""; // Clear grid but keep timestamp
@@ -170,7 +169,7 @@
                     img.draggable = true;
                     img.setAttribute("data-index", index);
                     
-                    // Apply saved filter
+                    // Apply saved filter directly in inline style
                     const savedFilter = localStorage.getItem('imageFilter');
                     if (savedFilter) {
                         img.style.filter = savedFilter;
@@ -191,13 +190,14 @@
         });
     
         downloadButton.addEventListener('click', function () {
-            html2canvas(gridContainer, { scale: 2 }).then(canvas => {
+            html2canvas(gridContainer, { scale: 2, useCORS: true, foreignObjectRendering: true }).then(canvas => {
                 const link = document.createElement('a');
                 link.href = canvas.toDataURL('image/png');
                 link.download = 'photo.png';
                 link.click();
             });
         });
+        
     
         function loadBackgroundSettings() {
             const savedColor = localStorage.getItem('gridBackgroundColor');
