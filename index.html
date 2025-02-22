@@ -312,7 +312,7 @@
         function captureImage() {
             if (shots < 4) {
                 context.save(); 
-                context.filter = video.style.filter; // Apply the filter here
+                context.filter = video.style.filter; // Apply the filter to canvas context
                 context.translate(canvas.width, 0); // Flip horizontally
                 context.scale(-1, 1);
                 context.drawImage(video, 0, 0, canvas.width, canvas.height);
