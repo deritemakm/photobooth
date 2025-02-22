@@ -149,30 +149,41 @@
         function updateTimestamp() {
             if (!localStorage.getItem('savedTimestamp')) {
                 const now = new Date();
-                const formattedDate = now.toLocaleString();
-                localStorage.setItem('savedTimestamp', formattedDate);
+                const formattedDate = now.toLocaleDateString();
+                const formattedTime = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const formattedTimestamp = `${formattedDate} ${formattedTime}`;
+                localStorage.setItem('savedTimestamp', formattedTimestamp);
             }
-            timestamp.textContent = `Captured on: ${localStorage.getItem('savedTimestamp')}`;
+            timestamp.textContent = `${localStorage.getItem('savedTimestamp')}`;
         }
+        
     
         function loadImages() {
             const savedImages = JSON.parse(localStorage.getItem('capturedImages'));
             gridContainer.innerHTML = ""; // Clear grid but keep timestamp
-    
+        
             if (savedImages) {
                 savedImages.forEach((src, index) => {
                     const img = document.createElement('img');
                     img.src = src;
                     img.classList.add('grid-item');
                     img.draggable = true;
-                    img.setAttribute("data-index", index); 
+                    img.setAttribute("data-index", index);
+                    
+                    // Apply saved filter
+                    const savedFilter = localStorage.getItem('imageFilter');
+                    if (savedFilter) {
+                        img.style.filter = savedFilter;
+                    }
+        
                     gridContainer.appendChild(img);
                 });
             }
-    
+        
             // Ensure timestamp is added back
             gridContainer.appendChild(timestamp);
         }
+        
     
         newPhotosButton.addEventListener('click', function () {
             localStorage.removeItem('savedTimestamp'); // Reset timestamp when taking new photos
