@@ -311,12 +311,12 @@
 
         function captureImage() {
             if (shots < 4) {
-                context.save(); 
-                context.filter = video.style.filter; // Apply the filter to canvas context
+                context.save();
+                context.filter = getComputedStyle(video).filter; // Ensure the filter is applied
                 context.translate(canvas.width, 0); // Flip horizontally
                 context.scale(-1, 1);
                 context.drawImage(video, 0, 0, canvas.width, canvas.height);
-                context.restore(); // Restore context
+                context.restore();
                 
                 const img = document.createElement('img');
                 const imageData = canvas.toDataURL("image/png");
