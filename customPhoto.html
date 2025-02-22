@@ -48,6 +48,11 @@
             background-size: contain;
             margin-bottom: 20px;
             position: relative;
+            background-size: cover;  /* Ensure it fills properly */
+            background-repeat: no-repeat;
+            background-position: center;
+            image-rendering: crisp-edges;
+            image-rendering: -webkit-optimize-contrast;
         }
 
         .grid-item {
@@ -111,9 +116,10 @@
     
     <div class="button-container">
         <button id="ribbonButton">Ribbon Background</button>
-        <button id="heartButton">Cat Background</button>
+        <button id="catButton">Cat Background</button>
         <button id="rabbitButton">Rabbit Background</button>
-        <button id="vintageButton">Vintage Background</button>
+        <button id="heartButton">Heart Background</button>
+        <button id="vintageButton">Sonny Angel Background</button>
         <button id="ghibliButton">Ghibli Background</button>
         <button id="anyColorBtn">Any Colors</button>
     </div>
@@ -137,8 +143,9 @@
         const downloadButton = document.getElementById('downloadButton');
         const colorPicker = document.getElementById('colorPicker');
         const ribbonButton = document.getElementById('ribbonButton');
-        const heartButton = document.getElementById('heartButton');
+        const catButton = document.getElementById('catButton');
         const rabbitButton = document.getElementById('rabbitButton');
+        const heartButton = document.getElementById('heartButton');
         const vintageButton = document.getElementById('vintageButton');
         const ghibliButton = document.getElementById('ghibliButton');
         const gridButton = document.getElementById('anyColorBtn');
@@ -176,15 +183,31 @@
             localStorage.removeItem('savedTimestamp'); // Reset timestamp when taking new photos
             window.location.href = 'index.html';
         });
+
     
         downloadButton.addEventListener('click', function () {
-            html2canvas(gridContainer).then(canvas => {
-                const link = document.createElement('a');
-                link.href = canvas.toDataURL('image/png');
-                link.download = 'photo.png';
-                link.click();
-            });
+            const backgroundImage = new Image();
+            backgroundImage.src = localStorage.getItem('gridBackgroundImage');
+            backgroundImage.crossOrigin = "anonymous"; 
+        
+            backgroundImage.onload = function () {
+                html2canvas(gridContainer, {
+                    scale: 3,
+                    backgroundColor: null,
+                    useCORS: true
+                }).then(canvas => {
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+        
+                    const link = document.createElement('a');
+                    link.href = canvas.toDataURL('image/png', 1.0);
+                    link.download = 'photo.png';
+                    link.click();
+                });
+            };
         });
+        
+        
     
         function loadBackgroundSettings() {
             const savedColor = localStorage.getItem('gridBackgroundColor');
@@ -212,16 +235,23 @@
             setBackgroundImage('image/ribbon-bg.png');
         });
     
-        heartButton.addEventListener('click', function () {
-            setBackgroundImage('image/kitten-bg.jpg');
+        catButton.addEventListener('click', function () {
+            setBackgroundImage('image/cat-bg2.png');
         });
     
         rabbitButton.addEventListener('click', function () {
             setBackgroundImage('image/rabbit-bg.jpg');
         });
+
+        
+        heartButton.addEventListener('click', function () {
+            setBackgroundImage('image/heart-bg2.png');
+
+        });
+    
     
         vintageButton.addEventListener('click', function () {
-            setBackgroundImage('image/vintage-bg.jpg');
+            setBackgroundImage('image/sonnyangel-bg.png');
         });
 
         ghibliButton.addEventListener('click', function () {
