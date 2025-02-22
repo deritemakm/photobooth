@@ -309,21 +309,27 @@
             updateTimer();
         }
 
+        let currentFilter = 'none';
+
+        filterSelect.addEventListener('change', function () {
+            currentFilter = this.value;
+            video.style.filter = currentFilter;
+        });
+        
         function captureImage() {
             if (shots < 4) {
                 context.save();
-                context.filter = getComputedStyle(video).filter; // Ensure the filter is applied
-                context.translate(canvas.width, 0); // Flip horizontally
+                context.filter = currentFilter; // Apply the selected filter directly
+                context.translate(canvas.width, 0);
                 context.scale(-1, 1);
                 context.drawImage(video, 0, 0, canvas.width, canvas.height);
                 context.restore();
                 
                 const img = document.createElement('img');
-                const imageData = canvas.toDataURL("image/png");
-        
-                img.src = imageData;
+                img.src = canvas.toDataURL("image/png");
                 grid.appendChild(img);
-                capturedImages.push(imageData);
+                capturedImages.push(img.src);
+                
                 shots++;
         
                 if (shots < 4) {
@@ -335,6 +341,7 @@
                 }
             }
         }
+        
         
 
         snapButton.addEventListener('click', function () {
