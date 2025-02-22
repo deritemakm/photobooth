@@ -319,7 +319,7 @@
         function captureImage() {
             if (shots < 4) {
                 context.save();
-                context.filter = currentFilter; // Ensure the filter is applied when capturing
+                context.filter = currentFilter; // Ensure filter is applied
                 context.translate(canvas.width, 0);
                 context.scale(-1, 1);
                 context.drawImage(video, 0, 0, canvas.width, canvas.height);
