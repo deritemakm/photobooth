@@ -315,38 +315,40 @@
             currentFilter = this.value;
             video.style.filter = currentFilter;
         });
-
-       function captureImage() {
-    if (shots < 4) {
-        // Create a temporary canvas to properly apply the filter
-        const tempCanvas = document.createElement('canvas');
-        const tempCtx = tempCanvas.getContext('2d');
-        tempCanvas.width = canvas.width;
-        tempCanvas.height = canvas.height;
-
-        // Apply the selected filter from video
-        tempCtx.filter = video.style.filter; // Ensure filter is applied
-        tempCtx.translate(tempCanvas.width, 0);
-        tempCtx.scale(-1, 1); // Flip image horizontally
-        tempCtx.drawImage(video, 0, 0, tempCanvas.width, tempCanvas.height);
-
-        const img = document.createElement('img');
-        img.src = tempCanvas.toDataURL("image/png"); // Save filtered image
-        grid.appendChild(img);
-        capturedImages.push(img.src);
-
-        shots++;
-
-        if (shots < 4) {
-            setTimeout(() => startTimer(5, captureImage), 500);
-        } else {
-            snapButton.disabled = true;
-            retakeButton.disabled = false;
-            customizeButton.disabled = false;
+        
+        function captureImage() {
+            if (shots < 4) {
+                // Create a temporary canvas to properly apply the filter
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+                tempCanvas.width = canvas.width;
+                tempCanvas.height = canvas.height;
+        
+                // Get the selected filter
+                const selectedFilter = filterSelect.value;
+        
+                // Apply the selected filter to the canvas before drawing
+                tempCtx.filter = selectedFilter;
+                tempCtx.translate(tempCanvas.width, 0);
+                tempCtx.scale(-1, 1); // Flip image horizontally
+                tempCtx.drawImage(video, 0, 0, tempCanvas.width, tempCanvas.height);
+        
+                const img = document.createElement('img');
+                img.src = tempCanvas.toDataURL("image/png"); // Save filtered image
+                grid.appendChild(img);
+                capturedImages.push(img.src);
+        
+                shots++;
+        
+                if (shots < 4) {
+                    setTimeout(() => startTimer(5, captureImage), 500);
+                } else {
+                    snapButton.disabled = true;
+                    retakeButton.disabled = false;
+                    customizeButton.disabled = false;
+                }
+            }
         }
-    }
-}
-
         
         
         
