@@ -184,41 +184,42 @@
             const downloadButton = document.getElementById('downloadButton');
         
             function loadImages() {
-                const savedImages = JSON.parse(localStorage.getItem('capturedImages'));
+                const savedImages = JSON.parse(localStorage.getItem('capturedImages')) || [];
                 const savedFilters = JSON.parse(localStorage.getItem('imageFilters')) || [];
-                gridContainer.innerHTML = ""; // Clear previous images but keep timestamp
-        
-                if (savedImages) {
+                gridContainer.innerHTML = ""; // Clear grid but keep timestamp
+            
+                if (savedImages.length > 0) {
                     savedImages.forEach((src, index) => {
                         const img = document.createElement('img');
                         img.src = src;
                         img.classList.add('grid-item');
                         img.draggable = true;
                         img.setAttribute("data-index", index);
-        
-                        // Apply saved filter
+            
+                        // Apply the saved filter if available
                         if (savedFilters[index]) {
                             img.style.filter = savedFilters[index];
                         }
-        
+            
                         // Allow user to change filters dynamically
                         img.addEventListener("click", function () {
                             let currentFilter = img.style.filter || "none";
                             let newFilter = cycleFilters(currentFilter);
                             img.style.filter = newFilter;
-                            
-                            // Save filter for this image
+            
+                            // Save the filter selection in localStorage
                             savedFilters[index] = newFilter;
                             localStorage.setItem('imageFilters', JSON.stringify(savedFilters));
                         });
-        
+            
                         gridContainer.appendChild(img);
                     });
                 }
-        
+            
                 // Ensure timestamp is added back
                 gridContainer.appendChild(timestamp);
             }
+            
         
             function cycleFilters(currentFilter) {
                 const filters = ["none", "grayscale(100%)", "sepia(100%)", "brightness(120%)", "contrast(150%)"];
@@ -230,20 +231,20 @@
             downloadButton.addEventListener('click', function () {
                 html2canvas(gridContainer, { scale: 2 }).then(canvas => {
                     const context = canvas.getContext('2d');
-        
+            
                     document.querySelectorAll('.grid-item').forEach((img) => {
                         const filter = getComputedStyle(img).filter; // Get applied filter
                         if (filter !== 'none') {
                             const imgCanvas = document.createElement('canvas');
                             const imgCtx = imgCanvas.getContext('2d');
-        
+            
                             imgCanvas.width = img.naturalWidth;
                             imgCanvas.height = img.naturalHeight;
-        
-                            imgCtx.filter = filter; // Apply the filter to canvas
+            
+                            imgCtx.filter = filter; // Apply the filter to the new canvas
                             imgCtx.drawImage(img, 0, 0, imgCanvas.width, imgCanvas.height);
-        
-                            // Replace image with filtered one
+            
+                            // Replace image with the filtered one before download
                             const imgDataURL = imgCanvas.toDataURL('image/png');
                             const tempImg = new Image();
                             tempImg.src = imgDataURL;
@@ -252,15 +253,16 @@
                             };
                         }
                     });
-        
+            
                     setTimeout(() => {
                         const link = document.createElement('a');
                         link.href = canvas.toDataURL('image/png');
                         link.download = 'photo.png';
                         link.click();
-                    }, 500); // Allow time for the filters to be applied
+                    }, 500); // Allow time for filters to be applied
                 });
             });
+            
         
             loadImages(); // Load images and apply filters when the page loads
         });
