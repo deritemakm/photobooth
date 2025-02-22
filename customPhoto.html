@@ -48,11 +48,6 @@
             background-size: contain;
             margin-bottom: 20px;
             position: relative;
-            background-size: cover;  /* Ensure it fills properly */
-            background-repeat: no-repeat;
-            background-position: center;
-            image-rendering: crisp-edges;
-            image-rendering: -webkit-optimize-contrast;
         }
 
         .grid-item {
@@ -183,31 +178,15 @@
             localStorage.removeItem('savedTimestamp'); // Reset timestamp when taking new photos
             window.location.href = 'index.html';
         });
-
     
         downloadButton.addEventListener('click', function () {
-            const backgroundImage = new Image();
-            backgroundImage.src = localStorage.getItem('gridBackgroundImage');
-            backgroundImage.crossOrigin = "anonymous"; 
-        
-            backgroundImage.onload = function () {
-                html2canvas(gridContainer, {
-                    scale: 3,
-                    backgroundColor: null,
-                    useCORS: true
-                }).then(canvas => {
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
-        
-                    const link = document.createElement('a');
-                    link.href = canvas.toDataURL('image/png', 1.0);
-                    link.download = 'photo.png';
-                    link.click();
-                });
-            };
+            html2canvas(gridContainer, { scale: 2 }).then(canvas => {
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL('image/png');
+                link.download = 'photo.png';
+                link.click();
+            });
         });
-        
-        
     
         function loadBackgroundSettings() {
             const savedColor = localStorage.getItem('gridBackgroundColor');
@@ -268,4 +247,4 @@
     </script>
     
 </body>
-</html>
+</html>  
