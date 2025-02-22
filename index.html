@@ -232,7 +232,7 @@
 </head>
 <body>
     <div class="header-title">
-        <h1>hotobooth</h1>
+        <h1>Photobooth</h1>
     </div>
 
     <div class="main-container">
@@ -270,11 +270,11 @@
         const customizeButton = document.getElementById('customize');
         const timer = document.getElementById('timer');
         
-
         let shots = 0;
         let capturedImages = [];
-
-        // Access webcam
+        let currentFilter = 'none';
+        
+        // Access webcam and apply filter
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
             navigator.mediaDevices.getUserMedia({ video: true })
                 .then(function (stream) {
@@ -285,17 +285,18 @@
                     console.error("Error accessing webcam: ", error);
                 });
         }
-
-         // Apply selected filter
-         filterSelect.addEventListener('change', function () {
-            video.style.filter = this.value;
-        });
-
         
+        // Apply selected filter to video
+        filterSelect.addEventListener('change', function () {
+            currentFilter = this.value;
+            video.style.filter = currentFilter;
+        });
+        
+        // Timer function
         function startTimer(countdown, callback) {
             timer.style.display = "block";
             let counter = countdown;
-
+        
             function updateTimer() {
                 if (counter > 0) {
                     timer.textContent = counter;
@@ -308,33 +309,24 @@
             }
             updateTimer();
         }
-
-        let currentFilter = 'none';
-
-        filterSelect.addEventListener('change', function () {
-            currentFilter = this.value;
-            video.style.filter = currentFilter;
-        });
         
+        // Capture image with applied filter
         function captureImage() {
             if (shots < 4) {
-                // Create a temporary canvas to properly apply the filter
-                const tempCanvas = document.createElement('canvas');
-                const tempCtx = tempCanvas.getContext('2d');
-                tempCanvas.width = canvas.width;
-                tempCanvas.height = canvas.height;
+                // Set canvas size to match video for different screen sizes
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                
+                // Apply filter to canvas and capture image
+                context.filter = currentFilter;
+                context.translate(canvas.width, 0);
+                context.scale(-1, 1); // Flip image horizontally
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
         
-                // Get the selected filter
-                const selectedFilter = filterSelect.value;
-        
-                // Apply the selected filter to the canvas before drawing
-                tempCtx.filter = selectedFilter;
-                tempCtx.translate(tempCanvas.width, 0);
-                tempCtx.scale(-1, 1); // Flip image horizontally
-                tempCtx.drawImage(video, 0, 0, tempCanvas.width, tempCanvas.height);
-        
+                // Convert canvas to image
                 const img = document.createElement('img');
-                img.src = tempCanvas.toDataURL("image/png"); // Save filtered image
+                img.src = canvas.toDataURL("image/png");
+                img.style.filter = currentFilter; // Ensure filter is applied
                 grid.appendChild(img);
                 capturedImages.push(img.src);
         
@@ -350,23 +342,19 @@
             }
         }
         
-        
-        
-
+        // Start capture sequence
         snapButton.addEventListener('click', function () {
-            context.filter = video.style.filter;
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
             shots = 0;
             capturedImages = [];
             grid.innerHTML = "";
             snapButton.disabled = true;
             retakeButton.disabled = true;
             customizeButton.disabled = true;
-          
-
+        
             startTimer(5, captureImage);
         });
-
+        
+        // Retake photos
         retakeButton.addEventListener('click', function () {
             shots = 0;
             capturedImages = [];
@@ -375,14 +363,15 @@
             retakeButton.disabled = true;
             customizeButton.disabled = true;
         });
-
+        
+        // Customize captured images
         customizeButton.addEventListener('click', function () {
             if (capturedImages.length > 0) {
                 localStorage.setItem('capturedImages', JSON.stringify(capturedImages));
                 window.location.href = 'customPhoto.html';
             }
         });
-
+        
 
        
 
