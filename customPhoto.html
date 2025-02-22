@@ -156,6 +156,8 @@
             }
             timestamp.textContent = `${localStorage.getItem('savedTimestamp')}`;
         }
+
+        
         
     
         function loadImages() {
@@ -256,6 +258,38 @@
         loadImages();
         loadBackgroundSettings();
         updateTimestamp();
+
+        function captureImage() {
+            if (shots < 4) {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                
+                context.filter = currentFilter;
+                context.translate(canvas.width, 0);
+                context.scale(-1, 1); 
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+                const imgSrc = canvas.toDataURL("image/png");
+                localStorage.setItem(`filter_${imgSrc}`, currentFilter); // Store filter
+        
+                const img = document.createElement('img');
+                img.src = imgSrc;
+                img.style.filter = currentFilter;
+                grid.appendChild(img);
+                capturedImages.push(imgSrc);
+        
+                shots++;
+        
+                if (shots < 4) {
+                    setTimeout(() => startTimer(5, captureImage), 500);
+                } else {
+                    snapButton.disabled = true;
+                    retakeButton.disabled = false;
+                    customizeButton.disabled = false;
+                }
+            }
+        }
+        
     </script>
     
 </body>

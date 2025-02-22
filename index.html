@@ -310,25 +310,24 @@
             updateTimer();
         }
         
-        // Capture image with applied filter
         function captureImage() {
             if (shots < 4) {
-                // Set canvas size to match video for different screen sizes
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
                 
-                // Apply filter to canvas and capture image
                 context.filter = currentFilter;
                 context.translate(canvas.width, 0);
-                context.scale(-1, 1); // Flip image horizontally
+                context.scale(-1, 1); 
                 context.drawImage(video, 0, 0, canvas.width, canvas.height);
         
-                // Convert canvas to image
+                const imgSrc = canvas.toDataURL("image/png");
+                localStorage.setItem(`filter_${imgSrc}`, currentFilter); // Store filter
+        
                 const img = document.createElement('img');
-                img.src = canvas.toDataURL("image/png");
-                img.style.filter = currentFilter; // Ensure filter is applied
+                img.src = imgSrc;
+                img.style.filter = currentFilter;
                 grid.appendChild(img);
-                capturedImages.push(img.src);
+                capturedImages.push(imgSrc);
         
                 shots++;
         
@@ -341,6 +340,7 @@
                 }
             }
         }
+        
         
         // Start capture sequence
         snapButton.addEventListener('click', function () {
