@@ -334,17 +334,17 @@
                 }
             }
         }
-        
 
         snapButton.addEventListener('click', function () {
+            context.filter = video.style.filter;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
             shots = 0;
             capturedImages = [];
             grid.innerHTML = "";
             snapButton.disabled = true;
             retakeButton.disabled = true;
             customizeButton.disabled = true;
-            context.filter = video.style.filter;
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+          
 
             startTimer(5, captureImage);
         });
