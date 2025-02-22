@@ -310,27 +310,28 @@
         }
 
         let currentFilter = 'none';
-        
+
         filterSelect.addEventListener('change', function () {
-            video.style.filter = this.value; // Update video filter
+            currentFilter = this.value;
+            video.style.filter = currentFilter;
         });
         
         function captureImage() {
             if (shots < 4) {
-                // Create a temporary canvas to apply the filter properly
+                // Create a temporary canvas to properly apply the filter
                 const tempCanvas = document.createElement('canvas');
                 const tempCtx = tempCanvas.getContext('2d');
                 tempCanvas.width = canvas.width;
                 tempCanvas.height = canvas.height;
         
-                // Apply filter from the video element before drawing
+                // Apply the selected filter from video
                 tempCtx.filter = getComputedStyle(video).filter;
                 tempCtx.translate(tempCanvas.width, 0);
-                tempCtx.scale(-1, 1); // Flip the image
+                tempCtx.scale(-1, 1); // Flip image horizontally
                 tempCtx.drawImage(video, 0, 0, tempCanvas.width, tempCanvas.height);
         
                 const img = document.createElement('img');
-                img.src = tempCanvas.toDataURL("image/png"); // Capture the filtered image
+                img.src = tempCanvas.toDataURL("image/png"); // Save filtered image
                 grid.appendChild(img);
                 capturedImages.push(img.src);
         
@@ -345,7 +346,6 @@
                 }
             }
         }
-        
         
         
         
