@@ -185,39 +185,19 @@
         
             function loadImages() {
                 const savedImages = JSON.parse(localStorage.getItem('capturedImages')) || [];
-                const savedFilters = JSON.parse(localStorage.getItem('imageFilters')) || [];
+                const gridContainer = document.getElementById('grid');
+            
                 gridContainer.innerHTML = ""; // Clear grid but keep timestamp
             
                 if (savedImages.length > 0) {
-                    savedImages.forEach((src, index) => {
+                    savedImages.forEach(({ src, filter }) => {
                         const img = document.createElement('img');
                         img.src = src;
                         img.classList.add('grid-item');
-                        img.draggable = true;
-                        img.setAttribute("data-index", index);
-            
-                        // Apply the saved filter if available
-                        if (savedFilters[index]) {
-                            img.style.filter = savedFilters[index];
-                        }
-            
-                        // Allow user to change filters dynamically
-                        img.addEventListener("click", function () {
-                            let currentFilter = img.style.filter || "none";
-                            let newFilter = cycleFilters(currentFilter);
-                            img.style.filter = newFilter;
-            
-                            // Save the filter selection in localStorage
-                            savedFilters[index] = newFilter;
-                            localStorage.setItem('imageFilters', JSON.stringify(savedFilters));
-                        });
-            
+                        img.style.filter = filter || "none"; // Apply saved filter
                         gridContainer.appendChild(img);
                     });
                 }
-            
-                // Ensure timestamp is added back
-                gridContainer.appendChild(timestamp);
             }
             
             
