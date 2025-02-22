@@ -157,19 +157,23 @@
             timestamp.textContent = `${localStorage.getItem('savedTimestamp')}`;
         }
         
+    
         function loadImages() {
             const savedImages = JSON.parse(localStorage.getItem('capturedImages'));
-            gridContainer.innerHTML = ""; // Clear grid but keep timestamp
+            console.log("Loaded images:", savedImages);
         
-            if (savedImages) {
+            gridContainer.innerHTML = ""; 
+        
+            if (savedImages && savedImages.length > 0) {
                 savedImages.forEach((src, index) => {
+                    console.log("Image Source:", src); // Debugging
+        
                     const img = document.createElement('img');
                     img.src = src;
                     img.classList.add('grid-item');
                     img.draggable = true;
                     img.setAttribute("data-index", index);
-                    
-                    // Apply saved filter directly in inline style
+        
                     const savedFilter = localStorage.getItem('imageFilter');
                     if (savedFilter) {
                         img.style.filter = savedFilter;
@@ -179,25 +183,22 @@
                 });
             }
         
-            // Ensure timestamp is added back
             gridContainer.appendChild(timestamp);
         }
         
-    
         newPhotosButton.addEventListener('click', function () {
             localStorage.removeItem('savedTimestamp'); // Reset timestamp when taking new photos
             window.location.href = 'index.html';
         });
     
         downloadButton.addEventListener('click', function () {
-            html2canvas(gridContainer, { scale: 2, useCORS: true, foreignObjectRendering: true }).then(canvas => {
+            html2canvas(gridContainer, { scale: 2 }).then(canvas => {
                 const link = document.createElement('a');
                 link.href = canvas.toDataURL('image/png');
                 link.download = 'photo.png';
                 link.click();
             });
         });
-        
     
         function loadBackgroundSettings() {
             const savedColor = localStorage.getItem('gridBackgroundColor');
