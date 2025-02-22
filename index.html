@@ -319,18 +319,17 @@
         function captureImage() {
             if (shots < 4) {
                 context.save();
-                context.filter = currentFilter; // Ensure the filter is applied
+                context.filter = currentFilter; // Ensure the filter is applied when capturing
                 context.translate(canvas.width, 0);
                 context.scale(-1, 1);
                 context.drawImage(video, 0, 0, canvas.width, canvas.height);
                 context.restore();
-                
+        
                 const img = document.createElement('img');
-                img.src = canvas.toDataURL("image/png");
-                img.style.filter = currentFilter; // Apply the filter to the displayed image
+                img.src = canvas.toDataURL("image/png"); // Capture the filtered image
                 grid.appendChild(img);
                 capturedImages.push(img.src);
-                
+        
                 shots++;
         
                 if (shots < 4) {
