@@ -312,11 +312,12 @@
         function captureImage() {
             if (shots < 4) {
                 context.save(); 
-                context.translate(canvas.width, 0); // Move context to the right
-                context.scale(-1, 1); // Flip horizontally
+                context.filter = video.style.filter; // Apply the filter here
+                context.translate(canvas.width, 0); // Flip horizontally
+                context.scale(-1, 1);
                 context.drawImage(video, 0, 0, canvas.width, canvas.height);
-                context.restore(); // Restore context to normal
-        
+                context.restore(); // Restore context
+                
                 const img = document.createElement('img');
                 const imageData = canvas.toDataURL("image/png");
         
@@ -334,6 +335,7 @@
                 }
             }
         }
+        
 
         snapButton.addEventListener('click', function () {
             context.filter = video.style.filter;
