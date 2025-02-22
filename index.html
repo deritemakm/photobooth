@@ -101,6 +101,26 @@
             color: rgb(250, 241, 241);
         }
 
+        #filterSelect{
+            margin: 10px;
+            border-radius: 40px;
+            color: rgb(0, 0, 0);
+            background-color: rgb(231, 231, 231);
+            border: 3px solid  rgba(249, 155, 210, 0.989);
+            font-size: 18px;
+            font-family: "Parkinsans", serif;
+            font-optical-sizing: auto;
+            padding: 15px 25px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s; 
+        }
+
+        #filterSelect:hover{
+            background-color: rgba(249, 149, 208, 0.818); 
+            transform: scale(1.05); 
+            color: rgb(250, 241, 241);
+        }
+
         .timer {
             position: absolute;
             top: 50%;
@@ -172,6 +192,7 @@
             .btn-container{
                 margin-left: 20px;
             }
+
         }
         
         @media (max-width: 480px) {
@@ -226,12 +247,21 @@
         <button id="snap">Start Capture</button>
         <button id="retake" disabled>Retake</button>
         <button id="customize" disabled>Customize Your Photo</button>
+        <select id="filterSelect">
+            <option value="none">No Filter</option>
+            <option value="grayscale(100%)">Grayscale</option>
+            <option value="sepia(100%)">Sepia</option>
+            <option value="invert(100%)">Invert</option>
+            <option value="contrast(200%)">High Contrast</option>
+            <option value="blur(5px)">Blur</option>
+        </select>
     </div>
 
     <canvas id="canvas" width="480" height="360"></canvas>
 
     <script>
         const video = document.getElementById('video');
+        const filterSelect = document.getElementById('filterSelect');
         const canvas = document.getElementById('canvas');
         const context = canvas.getContext('2d');
         const grid = document.getElementById('grid');
@@ -256,6 +286,10 @@
                 });
         }
 
+         // Apply selected filter
+         filterSelect.addEventListener('change', function () {
+            video.style.filter = this.value;
+        });
 
         
         function startTimer(countdown, callback) {
@@ -309,6 +343,8 @@
             snapButton.disabled = true;
             retakeButton.disabled = true;
             customizeButton.disabled = true;
+            context.filter = video.style.filter;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
             startTimer(5, captureImage);
         });
