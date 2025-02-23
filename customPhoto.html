@@ -194,27 +194,13 @@
             .location.href = 'index.html';
         });
 
-        
-        downloadButton.addEventListener('click', function () {
-            const images = gridContainer.querySelectorAll('img');
-            const promises = [];
-        
-            images.forEach((img) => {
-                if (!img.complete) {
-                    promises.push(new Promise((resolve) => img.onload = resolve));
-                }
-            });
-        
-            Promise.all(promises).then(() => {
-                html2canvas(gridContainer, {
-                    scale: 2,
-                    useCORS: true
-                }).then(canvas => {
-                    const link = document.createElement('a');
-                    link.href = canvas.toDataURL('image/png');
-                    link.download = 'photo.png';
-                    link.click();
-                });
+
+         downloadButton.addEventListener('click', function () {
+            html2canvas(gridContainer, { scale: 2 }).then(canvas => {
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL('image/png');
+                link.download = 'photo.png';
+                link.click();
             });
         });
         
