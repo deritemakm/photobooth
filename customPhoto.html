@@ -194,33 +194,18 @@
         });
     
         downloadButton.addEventListener('click', function () {
-            const images = document.querySelectorAll('.grid-item');
-        
-            images.forEach(img => {
-                const filter = getComputedStyle(img).filter; // Get applied filter
-        
-                const tempCanvas = document.createElement('canvas');
-                const tempCtx = tempCanvas.getContext('2d');
-        
-                // Set canvas dimensions same as image
-                tempCanvas.width = img.naturalWidth;
-                tempCanvas.height = img.naturalHeight;
-        
-                // Apply filter and draw the image
-                tempCtx.filter = filter;
-                tempCtx.drawImage(img, 0, 0, tempCanvas.width, tempCanvas.height);
-        
-                // Replace original image source with filtered version
-                img.src = tempCanvas.toDataURL('image/png');
-            });
-        
-            // Now capture with html2canvas after applying filters
-            html2canvas(gridContainer, { scale: 2 }).then(canvas => {
-                const link = document.createElement('a');
-                link.href = canvas.toDataURL('image/png');
-                link.download = 'photo.png';
-                link.click();
-            });
+            setTimeout(() => {
+                html2canvas(gridContainer, { 
+                    scale: window.devicePixelRatio,  // Fixes Retina display issue
+                    backgroundColor: null,          // Ensures transparent backgrounds
+                    useCORS: true                    // Loads images correctly
+                }).then(canvas => {
+                    const link = document.createElement('a');
+                    link.href = canvas.toDataURL('image/png');
+                    link.download = 'photo.png';
+                    link.click();
+                });
+            }, 300); // Short delay to ensure rendering is complete
         });
         
     
