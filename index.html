@@ -296,8 +296,9 @@
         let capturedImages = [];
         let currentFilter = 'none';
         
+    
         const cameraSelect = document.getElementById('cameraSelect');
-
+        
         // Function to start the selected camera (front or back)
         async function startCamera(facingMode) {
             try {
@@ -308,6 +309,10 @@
                 const stream = await navigator.mediaDevices.getUserMedia(constraints);
                 video.srcObject = stream;
                 video.play();
+        
+                // Mirror both front and back cameras
+                video.style.transform = "scaleX(-1)"; 
+        
             } catch (error) {
                 console.error("Error starting camera:", error);
             }
