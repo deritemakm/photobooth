@@ -194,44 +194,23 @@
         });
     
         downloadButton.addEventListener('click', function () {
-            const images = gridContainer.querySelectorAll('img');
-            const promises = [];
-        
-            images.forEach((img) => {
-                if (!img.complete) {
-                    promises.push(new Promise((resolve) => img.onload = resolve));
-                }
-            });
-        
-            Promise.all(promises).then(() => {
-                html2canvas(gridContainer, {
-                    scale: 2,
-                    useCORS: true
-                }).then(canvas => {
-                    // Create a new canvas to apply filters manually
-                    const tempCanvas = document.createElement('canvas');
-                    const tempCtx = tempCanvas.getContext('2d');
-                    tempCanvas.width = canvas.width;
-                    tempCanvas.height = canvas.height;
-        
-                    // Draw the original canvas onto the new canvas
-                    tempCtx.drawImage(canvas, 0, 0);
-        
-                    images.forEach((img) => {
-                        const filter = img.style.filter || "none"; // Get the applied filter
-                        tempCtx.filter = filter;
-                        const rect = img.getBoundingClientRect();
-                        const offsetX = rect.left - gridContainer.getBoundingClientRect().left;
-                        const offsetY = rect.top - gridContainer.getBoundingClientRect().top;
-                        tempCtx.drawImage(img, offsetX, offsetY, img.width, img.height);
+            html2canvas(gridContainer, {
+                scale: 2,
+                useCORS: true,
+                onclone: (documentClone) => {
+                    const clonedImages = documentClone.querySelectorAll('.grid-item');
+                    clonedImages.forEach((img, index) => {
+                        const originalImg = document.querySelectorAll('.grid-item')[index];
+                        if (originalImg) {
+                            img.style.filter = window.getComputedStyle(originalImg).filter; // Ensure filter is copied
+                        }
                     });
-        
-                    // Convert final canvas to image
-                    const link = document.createElement('a');
-                    link.href = tempCanvas.toDataURL('image/png');
-                    link.download = 'photo.png';
-                    link.click();
-                });
+                }
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL('image/png');
+                link.download = 'photo.png';
+                link.click();
             });
         });
         
