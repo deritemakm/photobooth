@@ -274,17 +274,20 @@
         let capturedImages = [];
         let currentFilter = 'none';
         
-        // Access webcam and apply filter
+       // Access webcam and apply filter
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-            navigator.mediaDevices.getUserMedia({ video: true })
-                .then(function (stream) {
-                    video.srcObject = stream;
-                    video.play();
-                })
-                .catch(function (error) {
-                    console.error("Error accessing webcam: ", error);
-                });
+            navigator.mediaDevices.getUserMedia({ 
+                video: { facingMode: { ideal: "environment" } } // Prefer back camera
+            })
+            .then(function (stream) {
+                video.srcObject = stream;
+                video.play();
+            })
+            .catch(function (error) {
+                console.error("Error accessing webcam: ", error);
+            });
         }
+
         
         filterSelect.addEventListener('change', function () {
             currentFilter = this.value;
