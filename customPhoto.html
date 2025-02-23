@@ -192,17 +192,20 @@
             localStorage.removeItem('savedTimestamp'); // Reset timestamp when taking new photos
             window.location.href = 'index.html';
         });
-    
+
+        
         downloadButton.addEventListener('click', function () {
             html2canvas(gridContainer, {
-                scale: 2,
-                useCORS: true,
+                scale: 2, // Higher resolution capture
+                useCORS: true, // Ensures images load correctly
                 onclone: (documentClone) => {
+                    // Select all images in the cloned document
                     const clonedImages = documentClone.querySelectorAll('.grid-item');
                     clonedImages.forEach((img, index) => {
                         const originalImg = document.querySelectorAll('.grid-item')[index];
                         if (originalImg) {
-                            img.style.filter = window.getComputedStyle(originalImg).filter; // Ensure filter is copied
+                            // Copy filter styles to the cloned images
+                            img.style.filter = window.getComputedStyle(originalImg).filter;
                         }
                     });
                 }
@@ -213,6 +216,7 @@
                 link.click();
             });
         });
+        
         
     
         function loadBackgroundSettings() {
