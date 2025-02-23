@@ -194,48 +194,47 @@
         
             html2canvas(gridContainer, {
                 scale: 2,
-                useCORS: true, // Prevent cross-origin issues
+                useCORS: true,
                 allowTaint: true
             }).then(canvas => {
                 const ctx = canvas.getContext('2d');
         
-                // Clear the canvas
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
                 // Get all images inside gridContainer
                 const images = document.querySelectorAll('.grid-item');
         
-                // Apply the filter manually to each image
-                images.forEach(img => {
+                // Create a temporary canvas to apply the filter
+                images.forEach((img, index) => {
                     const tempCanvas = document.createElement('canvas');
                     const tempCtx = tempCanvas.getContext('2d');
         
                     tempCanvas.width = img.naturalWidth;
                     tempCanvas.height = img.naturalHeight;
         
-                    // Load the image into the temporary canvas
                     const tempImg = new Image();
-                    tempImg.crossOrigin = "anonymous"; // Ensures CORS works properly
+                    tempImg.crossOrigin = "anonymous";
                     tempImg.src = img.src;
         
                     tempImg.onload = function () {
-                        tempCtx.filter = savedFilter; // Apply filter before drawing
+                        tempCtx.filter = savedFilter; // Apply the saved filter
                         tempCtx.drawImage(tempImg, 0, 0, tempCanvas.width, tempCanvas.height);
         
-                        // Draw the processed image onto the main canvas
+                        // Draw the filtered image onto the main canvas at the correct position
                         ctx.drawImage(tempCanvas, img.offsetLeft, img.offsetTop, img.width, img.height);
+        
+                        // When all images are processed, trigger the download
+                        if (index === images.length - 1) {
+                            setTimeout(() => {
+                                const link = document.createElement('a');
+                                link.href = canvas.toDataURL('image/png');
+                                link.download = 'photo.png';
+                                link.click();
+                            }, 500); // Small delay to ensure rendering is complete
+                        }
                     };
                 });
-        
-                // Ensure the image is downloaded with the filter
-                setTimeout(() => {
-                    const link = document.createElement('a');
-                    link.href = canvas.toDataURL('image/png');
-                    link.download = 'photo.png';
-                    link.click();
-                }, 1000); // Delay to allow images to load
             });
         });
+        
         
         
         function loadBackgroundSettings() {
