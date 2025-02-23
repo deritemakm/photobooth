@@ -237,6 +237,7 @@
 
     <div class="main-container">
         <div class="video-container">
+            <select id="cameraSelect"></select> 
             <video id="video" width="740" height="480" autoplay></video>
             <div id="grid"></div>
             <div class="timer" id="timer">5</div>
@@ -273,6 +274,54 @@
         let shots = 0;
         let capturedImages = [];
         let currentFilter = 'none';
+
+        const cameraSelect = document.getElementById('cameraSelect');
+
+// Function to get available cameras
+async function getCameras() {
+    try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoDevices = devices.filter(device => device.kind === 'videoinput');
+
+        cameraSelect.innerHTML = ""; // Clear previous options
+
+        videoDevices.forEach((device, index) => {
+            const option = document.createElement('option');
+            option.value = device.deviceId;
+            option.textContent = device.label || `Camera ${index + 1}`;
+            cameraSelect.appendChild(option);
+        });
+
+        if (videoDevices.length > 0) {
+            startCamera(videoDevices[0].deviceId); // Start with the first camera
+        }
+    } catch (error) {
+        console.error("Error fetching cameras:", error);
+    }
+}
+
+// Function to start the selected camera
+async function startCamera(deviceId) {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video: { deviceId: { exact: deviceId } }
+        });
+
+        video.srcObject = stream;
+        video.play();
+    } catch (error) {
+        console.error("Error starting camera:", error);
+    }
+}
+
+// Change camera when selecting from the dropdown
+cameraSelect.addEventListener('change', function () {
+    startCamera(this.value);
+});
+
+// Get cameras on page load
+getCameras();
+
         
        // Access webcam and apply filter
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {

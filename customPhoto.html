@@ -188,18 +188,23 @@
             localStorage.removeItem('savedTimestamp'); // Reset timestamp when taking new photos
             window.location.href = 'index.html';
         });
-    
+
+        
         downloadButton.addEventListener('click', function () {
+            const savedFilter = localStorage.getItem('imageFilter') || "none"; // Get the saved filter
+        
             html2canvas(gridContainer, {
-                scale: 2, 
-                useCORS: true
+                scale: 2,
+                useCORS: true, // Prevent cross-origin issues
+                allowTaint: true
             }).then(canvas => {
                 const ctx = canvas.getContext('2d');
-                const savedFilter = localStorage.getItem('imageFilter') || "none";
         
-                // Apply filter before saving
-                ctx.filter = savedFilter;
-                ctx.drawImage(canvas, 0, 0);
+                // Apply filter manually to each image
+                document.querySelectorAll('.grid-item').forEach(img => {
+                    ctx.filter = savedFilter;
+                    ctx.drawImage(img, img.offsetLeft, img.offsetTop, img.width, img.height);
+                });
         
                 const link = document.createElement('a');
                 link.href = canvas.toDataURL('image/png');
