@@ -193,34 +193,24 @@
             window.location.href = 'index.html';
         });
     
-        downloadButton.addEventListener('click', function () {
-            html2canvas(gridContainer, {
-                scale: 2,
-                useCORS: true, // Ensure images load properly
-                onclone: (document) => {
-                    document.querySelectorAll('.grid-item').forEach(img => {
-                        const originalFilter = localStorage.getItem(`filter_${img.src}`);
-                        if (originalFilter) {
-                            img.style.filter = originalFilter; // Apply saved filter
-                        }
-                    });
-                }
-            }).then(canvas => {
+        downloadButton.addEventListener("click", function () {
+            html2canvas(gridContainer, { scale: 2, useCORS: true }).then((canvas) => {
                 const ctx = canvas.getContext("2d");
         
-                document.querySelectorAll('.grid-item').forEach(img => {
+                document.querySelectorAll(".grid-item").forEach((img) => {
                     const originalFilter = localStorage.getItem(`filter_${img.src}`);
                     if (originalFilter) {
-                        ctx.filter = originalFilter; // Apply filter to the canvas
+                        ctx.filter = originalFilter; // Apply saved filter to canvas
+                        ctx.drawImage(img, img.offsetLeft, img.offsetTop, img.width, img.height);
                     }
                 });
         
-                const link = document.createElement('a');
-                link.href = canvas.toDataURL('image/png');
-                link.download = 'photo.png';
+                const link = document.createElement("a");
+                link.href = canvas.toDataURL("image/png");
+                link.download = "photo.png";
                 link.click();
             }).catch(error => {
-                console.error('Error capturing image:', error);
+                console.error("Error capturing image:", error);
             });
         });
         
