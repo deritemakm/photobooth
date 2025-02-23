@@ -375,7 +375,7 @@
                 canvas.height = 360;
         
                 context.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
-                context.filter = currentFilter;
+                context.filter = currentFilter; // APPLY FILTER TO CANVAS
         
                 // Check if the camera is the front camera
                 if (cameraSelect.value === "user") {
@@ -389,9 +389,8 @@
         
                 const img = document.createElement('img');
                 img.src = imgSrc;
-                img.style.filter = currentFilter;
                 grid.appendChild(img);
-                capturedImages.push(imgSrc);
+                capturedImages.push(imgSrc); // Store filtered image
         
                 shots++;
         

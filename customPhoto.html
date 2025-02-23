@@ -157,15 +157,18 @@
             timestamp.textContent = `${localStorage.getItem('savedTimestamp')}`;
         }
 
+        
+        
+    
         function loadImages() {
-            const savedImages = JSON.parse(localStorage.getItem('capturedImages')) || [];
+            const savedImages = JSON.parse(localStorage.getItem('capturedImages'));
             console.log("Loaded images:", savedImages);
         
             gridContainer.innerHTML = ""; 
         
-            if (savedImages.length > 0) {
+            if (savedImages && savedImages.length > 0) {
                 savedImages.forEach((src, index) => {
-                    console.log(`Image ${index} Source:`, src); // Debugging log
+                    console.log("Image Source:", src);
         
                     const img = document.createElement('img');
                     img.src = src;
@@ -173,16 +176,8 @@
                     img.draggable = true;
                     img.setAttribute("data-index", index);
         
-                    // Check and apply filter
-                    const savedFilter = localStorage.getItem(`filter_${src}`);
-                    if (savedFilter) {
-                        img.style.filter = savedFilter;
-                    }
-        
                     gridContainer.appendChild(img);
                 });
-            } else {
-                console.warn("No images found in localStorage.");
             }
         
             gridContainer.appendChild(timestamp);
