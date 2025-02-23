@@ -274,68 +274,43 @@
         let shots = 0;
         let capturedImages = [];
         let currentFilter = 'none';
-
+        
         const cameraSelect = document.getElementById('cameraSelect');
 
-// Function to get available cameras
-async function getCameras() {
-    try {
-        const devices = await navigator.mediaDevices.enumerateDevices();
-        const videoDevices = devices.filter(device => device.kind === 'videoinput');
-
-        cameraSelect.innerHTML = ""; // Clear previous options
-
-        videoDevices.forEach((device, index) => {
-            const option = document.createElement('option');
-            option.value = device.deviceId;
-            option.textContent = device.label || `Camera ${index + 1}`;
-            cameraSelect.appendChild(option);
-        });
-
-        if (videoDevices.length > 0) {
-            startCamera(videoDevices[0].deviceId); // Start with the first camera
-        }
-    } catch (error) {
-        console.error("Error fetching cameras:", error);
-    }
-}
-
-// Function to start the selected camera
-async function startCamera(deviceId) {
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-            video: { deviceId: { exact: deviceId } }
-        });
-
-        video.srcObject = stream;
-        video.play();
-    } catch (error) {
-        console.error("Error starting camera:", error);
-    }
-}
-
-// Change camera when selecting from the dropdown
-cameraSelect.addEventListener('change', function () {
-    startCamera(this.value);
-});
-
-// Get cameras on page load
-getCameras();
-
+        // Function to start the selected camera (front or back)
+        async function startCamera(facingMode) {
+            try {
+                const constraints = {
+                    video: { facingMode: facingMode } // "user" = front, "environment" = back
+                };
         
-       // Access webcam and apply filter
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-            navigator.mediaDevices.getUserMedia({ 
-                video: { facingMode: { ideal: "environment" } } // Prefer back camera
-            })
-            .then(function (stream) {
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
                 video.srcObject = stream;
                 video.play();
-            })
-            .catch(function (error) {
-                console.error("Error accessing webcam: ", error);
-            });
+            } catch (error) {
+                console.error("Error starting camera:", error);
+            }
         }
+        
+        // Populate the camera selection dropdown
+        function setupCameraSelection() {
+            cameraSelect.innerHTML = `
+                <option value="user">Front Camera</option>
+                <option value="environment">Back Camera</option>
+            `;
+        
+            // Start with front camera by default
+            startCamera("user");
+        }
+        
+        // Change camera when user selects from dropdown
+        cameraSelect.addEventListener('change', function () {
+            startCamera(this.value);
+        });
+        
+        // Initialize camera selection
+        setupCameraSelection();
+        
 
         
         filterSelect.addEventListener('change', function () {
