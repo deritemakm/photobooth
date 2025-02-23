@@ -194,13 +194,29 @@
         });
     
         downloadButton.addEventListener('click', function () {
-            html2canvas(gridContainer, { scale: 2 }).then(canvas => {
-                const link = document.createElement('a');
-                link.href = canvas.toDataURL('image/png');
-                link.download = 'photo.png';
-                link.click();
+            const images = gridContainer.getElementsByTagName('img');
+        
+            if (images.length === 0) {
+                alert("No images to download.");
+                return;
+            }
+        
+            Promise.all(Array.from(images).map(img => new Promise(resolve => {
+                if (img.complete) {
+                    resolve();
+                } else {
+                    img.onload = img.onerror = resolve;
+                }
+            }))).then(() => {
+                html2canvas(gridContainer, { scale: 2 }).then(canvas => {
+                    const link = document.createElement('a');
+                    link.href = canvas.toDataURL('image/png');
+                    link.download = 'customized-photo.png';
+                    link.click();
+                });
             });
         });
+        
     
         function loadBackgroundSettings() {
             const savedColor = localStorage.getItem('gridBackgroundColor');
