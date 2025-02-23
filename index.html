@@ -297,9 +297,7 @@
         let currentFilter = 'none';
         
 
-     
         const cameraSelect = document.getElementById('cameraSelect');
-        const gridOverlay = document.getElementById('gridOverlay'); // Grid Image Overlay
         
         // Function to start the selected camera (front or back)
         async function startCamera(facingMode) {
@@ -312,13 +310,11 @@
                 video.srcObject = stream;
                 video.play();
         
-                // Mirror front camera, keep back camera normal
+                // Mirror only the front camera
                 if (facingMode === "user") {
                     video.style.transform = "scaleX(-1)"; // Mirror front camera
-                    gridOverlay.style.transform = "scaleX(1)"; // Keep grid normal
                 } else {
                     video.style.transform = "scaleX(1)";  // Keep back camera normal
-                    gridOverlay.style.transform = "scaleX(-1)"; // Mirror grid for back camera
                 }
         
             } catch (error) {
@@ -344,7 +340,6 @@
         
         // Initialize camera selection
         setupCameraSelection();
-        
         
         
         filterSelect.addEventListener('change', function () {
@@ -381,8 +376,13 @@
         
                 context.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
                 context.filter = currentFilter;
-                context.translate(canvas.width, 0);
-                context.scale(-1, 1);
+        
+                // Check if the camera is the front camera
+                if (cameraSelect.value === "user") {
+                    context.translate(canvas.width, 0);
+                    context.scale(-1, 1); // Flip to match the preview
+                }
+        
                 context.drawImage(video, 0, 0, canvas.width, canvas.height);
         
                 const imgSrc = canvas.toDataURL("image/png");
@@ -404,6 +404,7 @@
                 }
             }
         }
+        
         
         
         
