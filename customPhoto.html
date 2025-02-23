@@ -190,35 +190,34 @@
         
         newPhotosButton.addEventListener('click', function () {
             localStorage.removeItem('savedTimestamp'); // Reset timestamp when taking new photos
-            window.location.href = 'index.html';
+            window
+            .location.href = 'index.html';
         });
+
+        
         downloadButton.addEventListener('click', function () {
-            setTimeout(() => {
-                html2canvas(gridContainer, { 
-                    scale: window.devicePixelRatio,
-                    backgroundColor: null,
+            const images = gridContainer.querySelectorAll('img');
+            const promises = [];
+        
+            images.forEach((img) => {
+                if (!img.complete) {
+                    promises.push(new Promise((resolve) => img.onload = resolve));
+                }
+            });
+        
+            Promise.all(promises).then(() => {
+                html2canvas(gridContainer, {
+                    scale: 2,
                     useCORS: true
                 }).then(canvas => {
-                    const ctx = canvas.getContext("2d");
-                    const images = gridContainer.getElementsByTagName("img");
-        
-                    Array.from(images).forEach(img => {
-                        const rect = img.getBoundingClientRect();
-                        const filter = img.style.filter || localStorage.getItem(`filter_${img.src}`);
-        
-                        if (filter) {
-                            ctx.filter = filter;
-                            ctx.drawImage(img, rect.left - gridContainer.offsetLeft, rect.top - gridContainer.offsetTop, img.width, img.height);
-                        }
-                    });
-        
                     const link = document.createElement('a');
                     link.href = canvas.toDataURL('image/png');
                     link.download = 'photo.png';
                     link.click();
                 });
-            }, 300);
+            });
         });
+        
         
     
         function loadBackgroundSettings() {
