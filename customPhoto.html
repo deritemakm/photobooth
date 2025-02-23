@@ -196,17 +196,31 @@
         downloadButton.addEventListener('click', function () {
             setTimeout(() => {
                 html2canvas(gridContainer, { 
-                    scale: window.devicePixelRatio,  // Fixes Retina display issue
-                    backgroundColor: null,          // Ensures transparent backgrounds
-                    useCORS: true                    // Loads images correctly
+                    scale: window.devicePixelRatio,
+                    backgroundColor: null,
+                    useCORS: true
                 }).then(canvas => {
+                    const ctx = canvas.getContext("2d");
+                    const images = gridContainer.getElementsByTagName("img");
+        
+                    Array.from(images).forEach(img => {
+                        const rect = img.getBoundingClientRect();
+                        const filter = img.style.filter || localStorage.getItem(`filter_${img.src}`);
+        
+                        if (filter) {
+                            ctx.filter = filter;
+                            ctx.drawImage(img, rect.left - gridContainer.offsetLeft, rect.top - gridContainer.offsetTop, img.width, img.height);
+                        }
+                    });
+        
                     const link = document.createElement('a');
                     link.href = canvas.toDataURL('image/png');
                     link.download = 'photo.png';
                     link.click();
                 });
-            }, 300); // Short delay to ensure rendering is complete
+            }, 300);
         });
+        
         
     
         function loadBackgroundSettings() {
