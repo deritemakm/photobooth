@@ -194,6 +194,27 @@
         });
     
         downloadButton.addEventListener('click', function () {
+            const images = document.querySelectorAll('.grid-item');
+        
+            images.forEach(img => {
+                const filter = getComputedStyle(img).filter; // Get applied filter
+        
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+        
+                // Set canvas dimensions same as image
+                tempCanvas.width = img.naturalWidth;
+                tempCanvas.height = img.naturalHeight;
+        
+                // Apply filter and draw the image
+                tempCtx.filter = filter;
+                tempCtx.drawImage(img, 0, 0, tempCanvas.width, tempCanvas.height);
+        
+                // Replace original image source with filtered version
+                img.src = tempCanvas.toDataURL('image/png');
+            });
+        
+            // Now capture with html2canvas after applying filters
             html2canvas(gridContainer, { scale: 2 }).then(canvas => {
                 const link = document.createElement('a');
                 link.href = canvas.toDataURL('image/png');
@@ -201,6 +222,7 @@
                 link.click();
             });
         });
+        
     
         function loadBackgroundSettings() {
             const savedColor = localStorage.getItem('gridBackgroundColor');
