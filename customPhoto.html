@@ -193,38 +193,26 @@
             window.location.href = 'index.html';
         });
     
-        downloadButton.addEventListener("click", function () {
-            html2canvas(gridContainer, { scale: 2, useCORS: true }).then((canvas) => {
-                const ctx = canvas.getContext("2d");
-                
-                // Create a temporary canvas for applying filters
-                const tempCanvas = document.createElement("canvas");
-                const tempCtx = tempCanvas.getContext("2d");
+        downloadButton.addEventListener('click', function () {
+            const images = gridContainer.querySelectorAll('img');
+            const promises = [];
         
-                document.querySelectorAll(".grid-item").forEach((img) => {
-                    const imgFilter = img.style.filter || "none"; // Get applied filter
-                    const imgRect = img.getBoundingClientRect();
-                    const gridRect = gridContainer.getBoundingClientRect();
-                    
-                    const offsetX = imgRect.left - gridRect.left;
-                    const offsetY = imgRect.top - gridRect.top;
+            images.forEach((img) => {
+                if (!img.complete) {
+                    promises.push(new Promise((resolve) => img.onload = resolve));
+                }
+            });
         
-                    tempCanvas.width = img.width;
-                    tempCanvas.height = img.height;
-        
-                    tempCtx.filter = imgFilter;
-                    tempCtx.drawImage(img, 0, 0, img.width, img.height);
-        
-                    ctx.drawImage(tempCanvas, offsetX, offsetY, img.width, img.height);
+            Promise.all(promises).then(() => {
+                html2canvas(gridContainer, {
+                    scale: 2,
+                    useCORS: true
+                }).then(canvas => {
+                    const link = document.createElement('a');
+                    link.href = canvas.toDataURL('image/png');
+                    link.download = 'photo.png';
+                    link.click();
                 });
-        
-                // Convert to downloadable image
-                const link = document.createElement("a");
-                link.href = canvas.toDataURL("image/png");
-                link.download = "photo.png";
-                link.click();
-            }).catch(error => {
-                console.error("Error capturing image:", error);
             });
         });
         
