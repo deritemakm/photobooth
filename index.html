@@ -286,11 +286,14 @@
                 });
         }
         
-        // Apply selected filter to video
         filterSelect.addEventListener('change', function () {
             currentFilter = this.value;
             video.style.filter = currentFilter;
+            
+            // Store selected filter in localStorage
+            localStorage.setItem('imageFilter', currentFilter);
         });
+        
         
         // Timer function
         function startTimer(countdown, callback) {
@@ -312,16 +315,16 @@
         
         function captureImage() {
             if (shots < 4) {
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                
+                canvas.width = 480;
+                canvas.height = 360;
+        
+                context.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
                 context.filter = currentFilter;
                 context.translate(canvas.width, 0);
-                context.scale(-1, 1); 
+                context.scale(-1, 1);
                 context.drawImage(video, 0, 0, canvas.width, canvas.height);
         
                 const imgSrc = canvas.toDataURL("image/png");
-                localStorage.setItem(`filter_${imgSrc}`, currentFilter); // Store filter
         
                 const img = document.createElement('img');
                 img.src = imgSrc;
@@ -340,6 +343,7 @@
                 }
             }
         }
+        
         
         
         // Start capture sequence

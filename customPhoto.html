@@ -162,24 +162,20 @@
     
         function loadImages() {
             const savedImages = JSON.parse(localStorage.getItem('capturedImages'));
-            console.log("Loaded images:", savedImages);
+            const savedFilter = localStorage.getItem('imageFilter') || "none"; // Get saved filter
         
             gridContainer.innerHTML = ""; 
         
             if (savedImages && savedImages.length > 0) {
                 savedImages.forEach((src, index) => {
-                    console.log("Image Source:", src); // Debugging
-        
                     const img = document.createElement('img');
                     img.src = src;
                     img.classList.add('grid-item');
                     img.draggable = true;
                     img.setAttribute("data-index", index);
         
-                    const savedFilter = localStorage.getItem('imageFilter');
-                    if (savedFilter) {
-                        img.style.filter = savedFilter;
-                    }
+                    // Apply saved filter
+                    img.style.filter = savedFilter;
         
                     gridContainer.appendChild(img);
                 });
@@ -194,14 +190,24 @@
         });
     
         downloadButton.addEventListener('click', function () {
-            html2canvas(gridContainer, { scale: 2 }).then(canvas => {
+            html2canvas(gridContainer, {
+                scale: 2, 
+                useCORS: true
+            }).then(canvas => {
+                const ctx = canvas.getContext('2d');
+                const savedFilter = localStorage.getItem('imageFilter') || "none";
+        
+                // Apply filter before saving
+                ctx.filter = savedFilter;
+                ctx.drawImage(canvas, 0, 0);
+        
                 const link = document.createElement('a');
                 link.href = canvas.toDataURL('image/png');
                 link.download = 'photo.png';
                 link.click();
             });
         });
-    
+        
         function loadBackgroundSettings() {
             const savedColor = localStorage.getItem('gridBackgroundColor');
             if (savedColor) {
@@ -259,36 +265,7 @@
         loadBackgroundSettings();
         updateTimestamp();
 
-        function captureImage() {
-            if (shots < 4) {
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                
-                context.filter = currentFilter;
-                context.translate(canvas.width, 0);
-                context.scale(-1, 1); 
-                context.drawImage(video, 0, 0, canvas.width, canvas.height);
-        
-                const imgSrc = canvas.toDataURL("image/png");
-                localStorage.setItem(`filter_${imgSrc}`, currentFilter); // Store filter
-        
-                const img = document.createElement('img');
-                img.src = imgSrc;
-                img.style.filter = currentFilter;
-                grid.appendChild(img);
-                capturedImages.push(imgSrc);
-        
-                shots++;
-        
-                if (shots < 4) {
-                    setTimeout(() => startTimer(5, captureImage), 500);
-                } else {
-                    snapButton.disabled = true;
-                    retakeButton.disabled = false;
-                    customizeButton.disabled = false;
-                }
-            }
-        }
+       
         
     </script>
     
