@@ -189,7 +189,6 @@
             window.location.href = 'index.html';
         });
 
-        
         downloadButton.addEventListener('click', function () {
             const savedFilter = localStorage.getItem('imageFilter') || "none"; // Get the saved filter
         
@@ -199,19 +198,34 @@
                 allowTaint: true
             }).then(canvas => {
                 const ctx = canvas.getContext('2d');
+                const images = document.querySelectorAll('.grid-item');
         
-                // Apply filter manually to each image
-                document.querySelectorAll('.grid-item').forEach(img => {
-                    ctx.filter = savedFilter;
-                    ctx.drawImage(img, img.offsetLeft, img.offsetTop, img.width, img.height);
+                // Clear the canvas
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+                // Draw each image with the applied filter
+                images.forEach(img => {
+                    const tempCanvas = document.createElement('canvas');
+                    const tempCtx = tempCanvas.getContext('2d');
+        
+                    tempCanvas.width = img.naturalWidth;
+                    tempCanvas.height = img.naturalHeight;
+        
+                    tempCtx.filter = savedFilter; // Apply filter before drawing
+                    tempCtx.drawImage(img, 0, 0, tempCanvas.width, tempCanvas.height);
+        
+                    // Draw the processed image onto the main canvas
+                    ctx.drawImage(tempCanvas, img.offsetLeft, img.offsetTop, img.width, img.height);
                 });
         
+                // Create and trigger the download link
                 const link = document.createElement('a');
                 link.href = canvas.toDataURL('image/png');
                 link.download = 'photo.png';
                 link.click();
             });
         });
+        
         
         function loadBackgroundSettings() {
             const savedColor = localStorage.getItem('gridBackgroundColor');
