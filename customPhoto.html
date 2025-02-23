@@ -196,15 +196,29 @@
         downloadButton.addEventListener("click", function () {
             html2canvas(gridContainer, { scale: 2, useCORS: true }).then((canvas) => {
                 const ctx = canvas.getContext("2d");
+                
+                // Create a temporary canvas for applying filters
+                const tempCanvas = document.createElement("canvas");
+                const tempCtx = tempCanvas.getContext("2d");
         
                 document.querySelectorAll(".grid-item").forEach((img) => {
-                    const originalFilter = localStorage.getItem(`filter_${img.src}`);
-                    if (originalFilter) {
-                        ctx.filter = originalFilter; // Apply saved filter to canvas
-                        ctx.drawImage(img, img.offsetLeft, img.offsetTop, img.width, img.height);
-                    }
+                    const imgFilter = img.style.filter || "none"; // Get applied filter
+                    const imgRect = img.getBoundingClientRect();
+                    const gridRect = gridContainer.getBoundingClientRect();
+                    
+                    const offsetX = imgRect.left - gridRect.left;
+                    const offsetY = imgRect.top - gridRect.top;
+        
+                    tempCanvas.width = img.width;
+                    tempCanvas.height = img.height;
+        
+                    tempCtx.filter = imgFilter;
+                    tempCtx.drawImage(img, 0, 0, img.width, img.height);
+        
+                    ctx.drawImage(tempCanvas, offsetX, offsetY, img.width, img.height);
                 });
         
+                // Convert to downloadable image
                 const link = document.createElement("a");
                 link.href = canvas.toDataURL("image/png");
                 link.download = "photo.png";
