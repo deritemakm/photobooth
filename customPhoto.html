@@ -168,13 +168,18 @@
         
             if (savedImages && savedImages.length > 0) {
                 savedImages.forEach((src, index) => {
-                    console.log("Image Source:", src);
+                    console.log("Image Source:", src); // Debugging
         
                     const img = document.createElement('img');
                     img.src = src;
                     img.classList.add('grid-item');
                     img.draggable = true;
                     img.setAttribute("data-index", index);
+        
+                    const savedFilter = localStorage.getItem('imageFilter');
+                    if (savedFilter) {
+                        img.style.filter = savedFilter;
+                    }
         
                     gridContainer.appendChild(img);
                 });
