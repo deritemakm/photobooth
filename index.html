@@ -290,30 +290,28 @@
         const retakeButton = document.getElementById('retake');
         const customizeButton = document.getElementById('customize');
         const timer = document.getElementById('timer');
+        const cameraSelect = document.getElementById('cameraSelect');
         
         let shots = 0;
         let capturedImages = [];
         let currentFilter = 'none';
         
-       
-        const cameraSelect = document.getElementById('cameraSelect');
-        
         // Function to start the selected camera (front or back)
         async function startCamera(facingMode) {
             try {
                 const constraints = {
-                    video: { facingMode: facingMode } // "user" = front, "environment" = back
+                    video: { facingMode: facingMode }
                 };
         
                 const stream = await navigator.mediaDevices.getUserMedia(constraints);
                 video.srcObject = stream;
                 video.play();
         
-                // Mirror only the front camera
+                // Only mirror the front camera
                 if (facingMode === "user") {
-                    video.style.transform = "scaleX(-1)"; // Mirror front camera
+                    video.style.transform = "scaleX(-1)";
                 } else {
-                    video.style.transform = "scaleX(1)";  // Keep back camera normal
+                    video.style.transform = "scaleX(1)";
                 }
         
             } catch (error) {
@@ -343,11 +341,10 @@
         filterSelect.addEventListener('change', function () {
             currentFilter = this.value;
             video.style.filter = currentFilter;
-            
+        
             // Store selected filter in localStorage
             localStorage.setItem('imageFilter', currentFilter);
         });
-        
         
         // Timer function
         function startTimer(countdown, callback) {
@@ -374,12 +371,13 @@
         
                 context.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
                 context.filter = currentFilter;
-                
-                 // Check if the camera is the front camera
-                 if (cameraSelect.value === "user") {
+        
+                // Flip the image only for the front camera
+                if (cameraSelect.value === "user") {
                     context.translate(canvas.width, 0);
                     context.scale(-1, 1); // Flip to match the preview
                 }
+        
                 context.drawImage(video, 0, 0, canvas.width, canvas.height);
         
                 const imgSrc = canvas.toDataURL("image/png");
@@ -401,8 +399,6 @@
                 }
             }
         }
-        
-        
         
         // Start capture sequence
         snapButton.addEventListener('click', function () {
@@ -434,7 +430,6 @@
             }
         });
         
-
        
 
 
