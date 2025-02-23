@@ -296,7 +296,7 @@
         let capturedImages = [];
         let currentFilter = 'none';
         
-    
+
         const cameraSelect = document.getElementById('cameraSelect');
         
         // Function to start the selected camera (front or back)
@@ -310,8 +310,12 @@
                 video.srcObject = stream;
                 video.play();
         
-                // Mirror both front and back cameras
-                video.style.transform = "scaleX(-1)"; 
+                // Mirror only the front camera
+                if (facingMode === "user") {
+                    video.style.transform = "scaleX(-1)"; // Mirror front camera
+                } else {
+                    video.style.transform = "scaleX(1)";  // Keep back camera normal
+                }
         
             } catch (error) {
                 console.error("Error starting camera:", error);
@@ -337,7 +341,6 @@
         // Initialize camera selection
         setupCameraSelection();
         
-
         
         filterSelect.addEventListener('change', function () {
             currentFilter = this.value;

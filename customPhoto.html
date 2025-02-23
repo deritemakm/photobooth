@@ -190,7 +190,7 @@
         });
 
         downloadButton.addEventListener('click', function () {
-            const savedFilter = localStorage.getItem('imageFilter') || "none"; // Get the saved filter
+            const savedFilter = localStorage.getItem('imageFilter') || "none"; // Get saved filter
         
             html2canvas(gridContainer, {
                 scale: 2,
@@ -198,12 +198,14 @@
                 allowTaint: true
             }).then(canvas => {
                 const ctx = canvas.getContext('2d');
-                const images = document.querySelectorAll('.grid-item');
         
                 // Clear the canvas
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
         
-                // Draw each image with the applied filter
+                // Get all images inside gridContainer
+                const images = document.querySelectorAll('.grid-item');
+        
+                // Apply the filter manually to each image
                 images.forEach(img => {
                     const tempCanvas = document.createElement('canvas');
                     const tempCtx = tempCanvas.getContext('2d');
@@ -211,18 +213,27 @@
                     tempCanvas.width = img.naturalWidth;
                     tempCanvas.height = img.naturalHeight;
         
-                    tempCtx.filter = savedFilter; // Apply filter before drawing
-                    tempCtx.drawImage(img, 0, 0, tempCanvas.width, tempCanvas.height);
+                    // Load the image into the temporary canvas
+                    const tempImg = new Image();
+                    tempImg.crossOrigin = "anonymous"; // Ensures CORS works properly
+                    tempImg.src = img.src;
         
-                    // Draw the processed image onto the main canvas
-                    ctx.drawImage(tempCanvas, img.offsetLeft, img.offsetTop, img.width, img.height);
+                    tempImg.onload = function () {
+                        tempCtx.filter = savedFilter; // Apply filter before drawing
+                        tempCtx.drawImage(tempImg, 0, 0, tempCanvas.width, tempCanvas.height);
+        
+                        // Draw the processed image onto the main canvas
+                        ctx.drawImage(tempCanvas, img.offsetLeft, img.offsetTop, img.width, img.height);
+                    };
                 });
         
-                // Create and trigger the download link
-                const link = document.createElement('a');
-                link.href = canvas.toDataURL('image/png');
-                link.download = 'photo.png';
-                link.click();
+                // Ensure the image is downloaded with the filter
+                setTimeout(() => {
+                    const link = document.createElement('a');
+                    link.href = canvas.toDataURL('image/png');
+                    link.download = 'photo.png';
+                    link.click();
+                }, 1000); // Delay to allow images to load
             });
         });
         
