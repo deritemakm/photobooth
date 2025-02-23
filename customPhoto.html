@@ -192,29 +192,38 @@
             localStorage.removeItem('savedTimestamp'); // Reset timestamp when taking new photos
             window.location.href = 'index.html';
         });
-
-        
+    
         downloadButton.addEventListener('click', function () {
             html2canvas(gridContainer, {
-                scale: 2, // Higher resolution capture
-                useCORS: true, // Ensures images load correctly
+                scale: window.devicePixelRatio, // Adjust scale dynamically
+                useCORS: true, // Ensure cross-origin images load
+                logging: true,
                 onclone: (documentClone) => {
-                    // Select all images in the cloned document
+                    // Apply filters manually to cloned images
                     const clonedImages = documentClone.querySelectorAll('.grid-item');
-                    clonedImages.forEach((img, index) => {
-                        const originalImg = document.querySelectorAll('.grid-item')[index];
+                    const originalImages = document.querySelectorAll('.grid-item');
+        
+                    clonedImages.forEach((clonedImg, index) => {
+                        const originalImg = originalImages[index];
                         if (originalImg) {
-                            // Copy filter styles to the cloned images
-                            img.style.filter = window.getComputedStyle(originalImg).filter;
+                            const filterStyle = window.getComputedStyle(originalImg).filter;
+                            clonedImg.style.filter = filterStyle; // Ensure filter is applied
                         }
                     });
                 }
             }).then(canvas => {
                 const link = document.createElement('a');
                 link.href = canvas.toDataURL('image/png');
-                link.download = 'photo.png';
-                link.click();
-            });
+                link.download = 'customized-photo.png';
+        
+                // Special handling for iPads & iPhones
+                if (navigator.userAgent.match(/iPhone|iPad|iPod/)) {
+                    const newWindow = window.open();
+                    newWindow.document.write('<img src="' + link.href + '" style="width:100%;">');
+                } else {
+                    link.click(); // Normal download for other devices
+                }
+            }).catch(error => console.error('Image download failed:', error));
         });
         
         
