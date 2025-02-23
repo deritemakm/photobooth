@@ -157,28 +157,32 @@
             timestamp.textContent = `${localStorage.getItem('savedTimestamp')}`;
         }
 
-        
-        
-    
         function loadImages() {
-            const savedImages = JSON.parse(localStorage.getItem('capturedImages'));
-            const savedFilter = localStorage.getItem('imageFilter') || "none"; // Get saved filter
+            const savedImages = JSON.parse(localStorage.getItem('capturedImages')) || [];
+            console.log("Loaded images:", savedImages);
         
             gridContainer.innerHTML = ""; 
         
-            if (savedImages && savedImages.length > 0) {
+            if (savedImages.length > 0) {
                 savedImages.forEach((src, index) => {
+                    console.log(`Image ${index} Source:`, src); // Debugging log
+        
                     const img = document.createElement('img');
                     img.src = src;
                     img.classList.add('grid-item');
                     img.draggable = true;
                     img.setAttribute("data-index", index);
         
-                    // Apply saved filter
-                    img.style.filter = savedFilter;
+                    // Check and apply filter
+                    const savedFilter = localStorage.getItem(`filter_${src}`);
+                    if (savedFilter) {
+                        img.style.filter = savedFilter;
+                    }
         
                     gridContainer.appendChild(img);
                 });
+            } else {
+                console.warn("No images found in localStorage.");
             }
         
             gridContainer.appendChild(timestamp);
@@ -188,55 +192,16 @@
             localStorage.removeItem('savedTimestamp'); // Reset timestamp when taking new photos
             window.location.href = 'index.html';
         });
-
+    
         downloadButton.addEventListener('click', function () {
-            const savedFilter = localStorage.getItem('imageFilter') || "none"; // Get saved filter
-        
-            html2canvas(gridContainer, {
-                scale: 2,
-                useCORS: true,
-                allowTaint: true
-            }).then(canvas => {
-                const ctx = canvas.getContext('2d');
-        
-                // Get all images inside gridContainer
-                const images = document.querySelectorAll('.grid-item');
-        
-                // Create a temporary canvas to apply the filter
-                images.forEach((img, index) => {
-                    const tempCanvas = document.createElement('canvas');
-                    const tempCtx = tempCanvas.getContext('2d');
-        
-                    tempCanvas.width = img.naturalWidth;
-                    tempCanvas.height = img.naturalHeight;
-        
-                    const tempImg = new Image();
-                    tempImg.crossOrigin = "anonymous";
-                    tempImg.src = img.src;
-        
-                    tempImg.onload = function () {
-                        tempCtx.filter = savedFilter; // Apply the saved filter
-                        tempCtx.drawImage(tempImg, 0, 0, tempCanvas.width, tempCanvas.height);
-        
-                        // Draw the filtered image onto the main canvas at the correct position
-                        ctx.drawImage(tempCanvas, img.offsetLeft, img.offsetTop, img.width, img.height);
-        
-                        // When all images are processed, trigger the download
-                        if (index === images.length - 1) {
-                            setTimeout(() => {
-                                const link = document.createElement('a');
-                                link.href = canvas.toDataURL('image/png');
-                                link.download = 'photo.png';
-                                link.click();
-                            }, 500); // Small delay to ensure rendering is complete
-                        }
-                    };
-                });
+            html2canvas(gridContainer, { scale: 2 }).then(canvas => {
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL('image/png');
+                link.download = 'photo.png';
+                link.click();
             });
         });
-        
-        
-        
+    
         function loadBackgroundSettings() {
             const savedColor = localStorage.getItem('gridBackgroundColor');
             if (savedColor) {
@@ -294,7 +259,36 @@
         loadBackgroundSettings();
         updateTimestamp();
 
-       
+        function captureImage() {
+            if (shots < 4) {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                
+                context.filter = currentFilter;
+                context.translate(canvas.width, 0);
+                context.scale(-1, 1); 
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+                const imgSrc = canvas.toDataURL("image/png");
+                localStorage.setItem(`filter_${imgSrc}`, currentFilter); // Store filter
+        
+                const img = document.createElement('img');
+                img.src = imgSrc;
+                img.style.filter = currentFilter;
+                grid.appendChild(img);
+                capturedImages.push(imgSrc);
+        
+                shots++;
+        
+                if (shots < 4) {
+                    setTimeout(() => startTimer(5, captureImage), 500);
+                } else {
+                    snapButton.disabled = true;
+                    retakeButton.disabled = false;
+                    customizeButton.disabled = false;
+                }
+            }
+        }
         
     </script>
     
