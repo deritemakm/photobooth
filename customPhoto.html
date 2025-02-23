@@ -194,26 +194,33 @@
         });
     
         downloadButton.addEventListener('click', function () {
-            const images = gridContainer.getElementsByTagName('img');
-        
-            if (images.length === 0) {
-                alert("No images to download.");
-                return;
-            }
-        
-            Promise.all(Array.from(images).map(img => new Promise(resolve => {
-                if (img.complete) {
-                    resolve();
-                } else {
-                    img.onload = img.onerror = resolve;
+            html2canvas(gridContainer, {
+                scale: 2,
+                useCORS: true, // Ensure images load properly
+                onclone: (document) => {
+                    document.querySelectorAll('.grid-item').forEach(img => {
+                        const originalFilter = localStorage.getItem(`filter_${img.src}`);
+                        if (originalFilter) {
+                            img.style.filter = originalFilter; // Apply saved filter
+                        }
+                    });
                 }
-            }))).then(() => {
-                html2canvas(gridContainer, { scale: 2 }).then(canvas => {
-                    const link = document.createElement('a');
-                    link.href = canvas.toDataURL('image/png');
-                    link.download = 'customized-photo.png';
-                    link.click();
+            }).then(canvas => {
+                const ctx = canvas.getContext("2d");
+        
+                document.querySelectorAll('.grid-item').forEach(img => {
+                    const originalFilter = localStorage.getItem(`filter_${img.src}`);
+                    if (originalFilter) {
+                        ctx.filter = originalFilter; // Apply filter to the canvas
+                    }
                 });
+        
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL('image/png');
+                link.download = 'photo.png';
+                link.click();
+            }).catch(error => {
+                console.error('Error capturing image:', error);
             });
         });
         
