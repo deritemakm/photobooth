@@ -374,8 +374,12 @@
         
                 context.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
                 context.filter = currentFilter;
-                context.translate(canvas.width, 0);
-                context.scale(-1, 1);
+                
+                 // Check if the camera is the front camera
+                 if (cameraSelect.value === "user") {
+                    context.translate(canvas.width, 0);
+                    context.scale(-1, 1); // Flip to match the preview
+                }
                 context.drawImage(video, 0, 0, canvas.width, canvas.height);
         
                 const imgSrc = canvas.toDataURL("image/png");
