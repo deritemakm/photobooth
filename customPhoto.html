@@ -185,6 +185,7 @@
         }
         
         
+        
         newPhotosButton.addEventListener('click', function () {
             localStorage.removeItem('savedTimestamp'); // Reset timestamp when taking new photos
             window
@@ -193,7 +194,7 @@
 
 
         downloadButton.addEventListener('click', function () {
-            // Temporarily apply filter to the whole grid container
+            // Apply stored filters before capturing
             gridContainer.querySelectorAll('.grid-item').forEach(img => {
                 const savedFilter = localStorage.getItem(`filter_${img.src}`);
                 if (savedFilter) {
@@ -208,6 +209,7 @@
                 link.click();
             });
         });
+        
         
         
         
