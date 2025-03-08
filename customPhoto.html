@@ -159,34 +159,31 @@
 
         
         
-    
         function loadImages() {
-            const savedImages = JSON.parse(localStorage.getItem('capturedImages'));
-            console.log("Loaded images:", savedImages);
-        
+            const savedImages = JSON.parse(localStorage.getItem('capturedImages')) || [];
+            
             gridContainer.innerHTML = ""; 
         
-            if (savedImages && savedImages.length > 0) {
-                savedImages.forEach((src, index) => {
-                    console.log("Image Source:", src); // Debugging
+            savedImages.forEach((src, index) => {
+                const img = document.createElement('img');
+                img.crossOrigin = "anonymous";
+                img.src = src;
+                img.classList.add('grid-item');
+                img.draggable = true;
+                img.setAttribute("data-index", index);
         
-                    const img = document.createElement('img');
-                    img.src = src;
-                    img.classList.add('grid-item');
-                    img.draggable = true;
-                    img.setAttribute("data-index", index);
+                // Retrieve and apply the filter per image
+                const savedFilter = localStorage.getItem(`filter_${src}`);
+                if (savedFilter) {
+                    img.style.filter = savedFilter;
+                }
         
-                    const savedFilter = localStorage.getItem('imageFilter');
-                    if (savedFilter) {
-                        img.style.filter = savedFilter;
-                    }
-        
-                    gridContainer.appendChild(img);
-                });
-            }
+                gridContainer.appendChild(img);
+            });
         
             gridContainer.appendChild(timestamp);
         }
+        
         
         newPhotosButton.addEventListener('click', function () {
             localStorage.removeItem('savedTimestamp'); // Reset timestamp when taking new photos
@@ -195,14 +192,23 @@
         });
 
 
-         downloadButton.addEventListener('click', function () {
-            html2canvas(gridContainer, { scale: 2 }).then(canvas => {
+        downloadButton.addEventListener('click', function () {
+            // Temporarily apply filter to the whole grid container
+            gridContainer.querySelectorAll('.grid-item').forEach(img => {
+                const savedFilter = localStorage.getItem(`filter_${img.src}`);
+                if (savedFilter) {
+                    img.style.filter = savedFilter;
+                }
+            });
+        
+            html2canvas(gridContainer, { scale: 2, useCORS: true }).then(canvas => {
                 const link = document.createElement('a');
                 link.href = canvas.toDataURL('image/png');
                 link.download = 'photo.png';
                 link.click();
             });
         });
+        
         
         
     
